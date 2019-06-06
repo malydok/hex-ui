@@ -4,7 +4,11 @@ import Nes from '@hapi/nes/lib/client';
 const client = new Nes.Client('ws://localhost:3000');
 const start = async () => {
   await client.connect();
-  client.subscribe('/', update => {
+
+  const response = await client.request('/room/create');
+  const { roomId, playerId } = response.payload;
+
+  client.subscribe(`/room/${roomId}`, update => {
     console.log(update);
   });
 };
