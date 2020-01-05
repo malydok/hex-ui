@@ -16,11 +16,12 @@
     "build": "rollup -c",
     "autobuild": "rollup -c -w",
     "dev": "run-p start:dev autobuild",
-    "start": "sirv public",
-    "start:dev": "sirv public --dev"
+    "start": "sirv public -s",
+    "start:dev": "sirv public -s -D"
   },
   "dependencies": {
     "@hapi/nes": "^11.2.2",
+    "normalize.css": "^8.0.1",
     "svelte-routing": "^1.4.0"
   }
 }

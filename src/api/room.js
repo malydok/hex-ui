@@ -6,6 +6,7 @@ export const createRoom = async () => {
   return roomId;
 };
 
-export const connectToRoom = async (roomId, onUpdate) => {
+export const connectToRoom = (roomId, onUpdate) =>
   api.subscribe(`/room/${roomId}`, onUpdate);
-};
+
+export const getRoom = roomId => api.request(`/room/${roomId}`);
