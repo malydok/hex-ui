@@ -20,6 +20,7 @@
     "start:dev": "sirv public --dev"
   },
   "dependencies": {
-    "@hapi/nes": "^11.2.2"
+    "@hapi/nes": "^11.2.2",
+    "svelte-routing": "^1.4.0"
   }
 }
