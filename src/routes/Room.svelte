@@ -1,33 +1,58 @@
 
 <script>
 	import { onMount } from 'svelte';
+  import { navigate } from "svelte-routing";
+  import Board from '../game/Board.svelte';
+  import Chat from './components/Chat.svelte';
+  import DevLog from './components/DevLog.svelte';
   import { connectToRoom, getRoom } from "../api/room";
-  import { api } from '../api/api';
+  import { sendMessage } from '../api/chat';
+  import { selectField } from '../api/game';
+  import { api, clientId } from '../api/api';
 
   export let id;
   let connecting = true;
-  let messages = [];
+  let events = [];
+  let chatMessages = [];
   let players;
+  let game;
+  const isSelf = id => id === clientId;
 
-  async function fetchPlayers() {
+  async function loadRoom() {
     const response = await getRoom(id);
     players = response.payload.players;
+    game = response.payload.game;
   }
 
   function handleEvent(event) {
-    messages = [...messages, JSON.stringify(event)];
+    events = [...events, event];
     switch (event.type) {
       case 'PLAYER_JOINED':
         players = [...players, event.playerId];
-      
+        break;
+      case 'PLAYER_LEFT':
+        players = players.filter(playerId => playerId === event.playerId);
+        break;
+      case 'CHAT_MESSAGE':
+        chatMessages = [...chatMessages, {
+          text: event.payload.message,
+          own: isSelf(event.payload.client)
+        }];
+        break;
+      case 'GAME_UPDATE':
+        game = event.payload;
+        break;
     }
   }
 
   onMount(async () => {
-    await fetchPlayers();
-		await connectToRoom(id, handleEvent);
-    
-    connecting = false;
+    try {
+      await loadRoom();
+      await connectToRoom(id, handleEvent);
+      connecting = false;
+    } catch (error) {
+      navigate('/');
+    }
 	});
 </script>
 
@@ -35,15 +60,18 @@
 Connecting...
 {:else}
 <div class="ui">
-  <div>
+  <div class="ui-main">
     <p>Your room is {id}</p>
-    <p>Players: {players.join(', ')}</p>
+    <Board 
+      game={game}
+      paused={players.length === 0}
+      clientId={clientId} 
+      selectField={selectField(id)}/>
   </div>
-  <ol class="dev-events">
-    {#each messages as message}
-      <li>{message}</li>
-    {/each}
-  </ol>
+  <div class="ui-chat">
+    <Chat messages={chatMessages} sendMessage={sendMessage(id)} />
+  </div>
+  <DevLog events={events} />
 </div>
 {/if}
 
@@ -51,10 +79,7 @@ Connecting...
 	.ui {
 		display: flex;
 	}
-  .dev-events {
-    width: 30%;
-    background: #eee;
-    font-size: 12px;
-    word-break: break-all;
+  .ui-main {
+    flex: 1;
   }
 </style>

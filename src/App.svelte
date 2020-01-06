@@ -16,10 +16,6 @@
   });
 </script>
 
-<style>
-@import '../node_modules/normalize.css/normalize.css';
-</style>
-
 {#if loading}
 Loading app
 {:else}
@@ -30,3 +26,10 @@ Loading app
   <Route path="/"><Home /></Route>
 </Router>
 {/if}
+
+<style global>
+* {
+  margin: 0;
+  padding: 0;
+}
+</style>
