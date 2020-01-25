@@ -7,6 +7,9 @@
   let message = '';
 
   function onSend() {
+    if (!message) {
+      return;
+    }
     sendMessage(message);
     message = '';
   }
@@ -16,7 +19,7 @@
 <p class="message" class:own={message.own}>{message.text}</p>
 {/each}
 <form class="input" on:submit|preventDefault={onSend}>
-  <input type="text" bind:value={message} required>
+  <input type="text" bind:value={message}>
 </form>
 
 <style>

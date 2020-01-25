@@ -16,6 +16,7 @@
   const isSelf = id => id === api.id;
   $: playerMissing = !room.player1 || !room.player2;
   $: myPlayer = isSelf(room.player1) ? 'player1' : 'player2';
+  $: myTurn = room.game && myPlayer === room.game.turn;
 
   function handleEvent(event) {
     switch (event.type) {
@@ -54,14 +55,18 @@ Connecting...
 {:else}
 <div class="ui">
   <div class="ui-main">
-    <p>Your room is {id}</p>
-    <p>Player1: {room.player1}<br>
-    Player2: {room.player2}</p>
-    <p>I am {myPlayer}</p>
+    <p>It's {myTurn ? '' : 'not'} my turn</p>
     <Board 
       game={room.game}
       paused={playerMissing}
+      myTurn={myTurn}
       selectField={selectField(id)}/>
+    <div class="player player1">
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" stroke="#222" stroke-width="2" viewbox="0 0 173.20508075688772 200"><path d="M86.60254037844386 0L173.20508075688772 50L173.20508075688772 150L86.60254037844386 200L0 150L0 50Z"></path></svg>
+    </div>
+    <div class="player player2">
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" stroke="#222" stroke-width="2" viewbox="0 0 173.20508075688772 200"><path d="M86.60254037844386 0L173.20508075688772 50L173.20508075688772 150L86.60254037844386 200L0 150L0 50Z"></path></svg>
+    </div>
   </div>
   <div class="ui-chat">
     <Chat messages={chatMessages} sendMessage={sendMessage(id)} />
@@ -75,5 +80,8 @@ Connecting...
 	}
   .ui-main {
     flex: 1;
+  }
+  .player {
+    position: absolute;
   }
 </style>
