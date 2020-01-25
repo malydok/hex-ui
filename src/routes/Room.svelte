@@ -4,34 +4,24 @@
   import { navigate } from "svelte-routing";
   import Board from '../game/Board.svelte';
   import Chat from './components/Chat.svelte';
-  import DevLog from './components/DevLog.svelte';
   import { connectToRoom, getRoom } from "../api/room";
   import { sendMessage } from '../api/chat';
   import { selectField } from '../api/game';
-  import { api, clientId } from '../api/api';
+  import { api } from '../api/api';
 
   export let id;
   let connecting = true;
-  let events = [];
   let chatMessages = [];
-  let players;
-  let game;
-  const isSelf = id => id === clientId;
-
-  async function loadRoom() {
-    const response = await getRoom(id);
-    players = response.payload.players;
-    game = response.payload.game;
-  }
+  let room = {};
+  const isSelf = id => id === api.id;
+  $: playerMissing = !room.player1 || !room.player2;
+  $: myPlayer = isSelf(room.player1) ? 'player1' : 'player2';
 
   function handleEvent(event) {
-    events = [...events, event];
     switch (event.type) {
       case 'PLAYER_JOINED':
-        players = [...players, event.playerId];
-        break;
       case 'PLAYER_LEFT':
-        players = players.filter(playerId => playerId === event.playerId);
+        room = event.payload;
         break;
       case 'CHAT_MESSAGE':
         chatMessages = [...chatMessages, {
@@ -40,17 +30,20 @@
         }];
         break;
       case 'GAME_UPDATE':
-        game = event.payload;
+        room = {
+          ...room,
+          game: event.payload
+        };
         break;
     }
   }
 
   onMount(async () => {
     try {
-      await loadRoom();
-      await connectToRoom(id, handleEvent);
+      room = await connectToRoom(id, handleEvent);
       connecting = false;
     } catch (error) {
+      console.error(error);
       navigate('/');
     }
 	});
@@ -62,16 +55,17 @@ Connecting...
 <div class="ui">
   <div class="ui-main">
     <p>Your room is {id}</p>
+    <p>Player1: {room.player1}<br>
+    Player2: {room.player2}</p>
+    <p>I am {myPlayer}</p>
     <Board 
-      game={game}
-      paused={players.length === 0}
-      clientId={clientId} 
+      game={room.game}
+      paused={playerMissing}
       selectField={selectField(id)}/>
   </div>
   <div class="ui-chat">
     <Chat messages={chatMessages} sendMessage={sendMessage(id)} />
   </div>
-  <DevLog events={events} />
 </div>
 {/if}
 

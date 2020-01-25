@@ -1,6 +1,5 @@
 <script>
   export let game;
-  export let clientId;
   export let paused;
   export let selectField;
 </script>
@@ -14,8 +13,8 @@
   {#each row as field, fieldIndex}
     <button 
       class="field" 
-      class:own={field && field === clientId}
-      class:opponents={field && field !== clientId}
+      class:player1={field === 'player1'}
+      class:player2={field === 'player2'}
       disabled={paused}
       on:click={selectField(rowIndex, fieldIndex)}>
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" stroke="#222" stroke-width="2" viewbox="0 0 173.20508075688772 200"><path d="M86.60254037844386 0L173.20508075688772 50L173.20508075688772 150L86.60254037844386 200L0 150L0 50Z"></path></svg>
@@ -50,10 +49,10 @@
 .field:hover {
   color: #aaa;
 }
-.own {
+.player1 {
   color: blue;
 }
-.opponents {
+.player2 {
   color: red;
 }
 .field svg {
