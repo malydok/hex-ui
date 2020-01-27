@@ -26,10 +26,3 @@ Loading app
   <Route path="/"><Home /></Route>
 </Router>
 {/if}
-
-<style global>
-* {
-  margin: 0;
-  padding: 0;
-}
-</style>
