@@ -1,0 +1,9 @@
+{
+  "root": "public/",
+  "clean_urls": true,
+  "https_only": true,
+  "routes": {
+    "/assets/*": "/assets/",
+    "/**": "index.html"
+  }
+}
