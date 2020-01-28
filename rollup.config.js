@@ -15,6 +15,7 @@ export default {
     file: 'public/assets/bundle.js',
   },
   plugins: [
+    replace({ __buildEnv__: process.env.NODE_ENV || 'development' }),
     svelte({
       // enable run-time checks when not in production
       dev: !production,

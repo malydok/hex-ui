@@ -1,7 +1,7 @@
 import Nes from '@hapi/nes/lib/client';
 
 const api_url =
-  process.env.NODE_ENV === 'production'
+  __buildEnv__ === 'production'
     ? 'https://api-hex.herokuapp.com'
     : 'ws://localhost:3000';
 
