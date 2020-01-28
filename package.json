@@ -13,6 +13,7 @@
     "svelte": "^3.16.7"
   },
   "scripts": {
+    "postinstall": "npm run build",
     "build": "rollup -c",
     "autobuild": "rollup -c -w",
     "dev": "run-p start:dev autobuild",
