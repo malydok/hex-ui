@@ -1,10 +1,10 @@
 
 <script>
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
   import { navigate } from "svelte-routing";
   import Board from '../game/Board.svelte';
   import Chat from './components/Chat.svelte';
-  import { connectToRoom, getRoom } from "../api/room";
+  import { connectToRoom, disconnectFromRoom, getRoom } from "../api/room";
   import { sendMessage } from '../api/chat';
   import { selectField } from '../api/game';
   import { api } from '../api/api';
@@ -19,10 +19,26 @@
   $: enemy = isSelf(room.player1) ? 'player2' : 'player1';
   $: myTurn = room.game && myPlayer === room.game.turn;
 
+  onMount(async () => {
+    try {
+      await connectToRoom(id, handleEvent);
+    } catch (error) {
+      console.warn(error.message);
+      leaveRoom();
+    }
+  });
+  onDestroy(() => disconnectFromRoom(id));
+  
   function handleEvent(event) {
     switch (event.type) {
-      case 'PLAYER_JOINED':
-      case 'PLAYER_LEFT':
+      case 'ROOM_FULL':
+        leaveRoom();
+        break;
+      case 'ROOM_SETUP':
+        room = event.payload;
+        connecting = false;
+        break;
+      case 'ROOM_UPDATE':
         room = event.payload;
         break;
       case 'CHAT_MESSAGE':
@@ -40,15 +56,9 @@
     }
   }
 
-  onMount(async () => {
-    try {
-      room = await connectToRoom(id, handleEvent);
-      connecting = false;
-    } catch (error) {
-      console.error(error);
-      navigate('/');
-    }
-	});
+  function leaveRoom() {
+    navigate('/');
+  }
 </script>
 
 {#if connecting}
